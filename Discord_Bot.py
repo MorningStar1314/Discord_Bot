@@ -2,14 +2,16 @@
 import discord
 from discord.ext import commands
 import json
+import random
+import os
 
 with open('setting.json','r',encoding='utf8') as jfile:
-    jdata=json.load(jfile)
+    jdata = json.load(jfile)
 
-intents=discord.Intents.all()
+intents = discord.Intents.all()
 
 #建置Bot實體，設定命令符號
-bot=commands.Bot(command_prefix='[',intents=intents)
+bot = commands.Bot(command_prefix='[',intents=intents)
 
 #上線
 @bot.event
@@ -20,7 +22,7 @@ async def on_ready():
 #成員加入
 @bot.event
 async def on_member_join(member):
-    channel=bot.get_channel(int(jdata['announce_channel']))
+    channel = bot.get_channel(int(jdata['announce_channel']))
     await channel.send(f'{member} join!!')
     print(f'{member} join!!')
 
@@ -28,17 +30,33 @@ async def on_member_join(member):
 #成員離開
 @bot.event
 async def on_member_remove(member):
-    channel=bot.get_channel(int(jdata['announce_channel']))
+    channel = bot.get_channel(int(jdata['announce_channel']))
     await channel.send(f'{member} leave!!')
     print(f'{member} leave!!')
 
 
-#Ping指令
+#載入
 @bot.command()
-async def ping(ctx):
-    await ctx.send(f'{round(bot.latency*1000)} (ms)')
+async def load(ctx,extension):
+    bot.load_extension(f'CMDs.{extension}')
+    await ctx.send(f'Loaded {extension} done.')
+
+#卸載
+@bot.command()
+async def unload(ctx,extension):
+    bot.unload_extension(f'CMDs.{extension}')
+    await ctx.send(f'Un - Loaded {extension} done.')
+
+#重新載入
+@bot.command()
+async def reload(ctx,extension):
+    bot.reload_extension(f'CMDs.{extension}')
+    await ctx.send(f'Re - Loaded {extension} done.')
+
+for Filename in os.listdir('./CMDs'):
+    if Filename.endswith('.py'):
+        bot.load_extension(F'CMDs.{Filename[:-3]}')
 
 
-
-
-bot.run(jdata['TOKEN'])
+if __name__ == "__main__":
+    bot.run(jdata['TOKEN'])
