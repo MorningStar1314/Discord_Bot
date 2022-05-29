@@ -2,9 +2,10 @@
 import discord
 from discord.ext import commands
 import json
-import random
-import os
+import random, os, asyncio
 
+
+#導入json資料
 with open('setting.json','r',encoding='utf8') as jfile:
     jdata = json.load(jfile)
 
